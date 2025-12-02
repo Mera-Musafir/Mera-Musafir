@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class ActivityBase(BaseModel):
     name: str
     trip_id: int  

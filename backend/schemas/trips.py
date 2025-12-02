@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-
+from schemas.activities import ActivityResponse  
 
 class Participants(BaseModel):
     id: int
@@ -20,15 +20,16 @@ class TripBase(BaseModel):
     duration: int
     triptype: Optional[str]
     participantlist: List[Participants]
-    activities: List[str]
+    activities: List[ActivityResponse] = []
 
 
 class TripCreate(TripBase):
-    pass
+    activities: List[str]
 
 
 class TripResponse(TripBase):
     id: int
+    activities: List[ActivityResponse]
 
     class Config:
         from_attributes = True

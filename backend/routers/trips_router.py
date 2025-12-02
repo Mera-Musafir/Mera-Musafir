@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from backend.database import get_db
-from backend.crud.trips_crud import get_all_trips
-from backend.schemas.trips import TripCreate, TripResponse
+from database import get_db
+from crud.trips_crud import get_all_trips
+from schemas.trips import TripCreate, TripResponse
 
 from typing import List
 
