@@ -19,5 +19,8 @@ class Trip(Base):
     triptype = Column(String)
     participantlist = Column(JSON)
 
-    # NEW: one-to-many relationship
+    # Existing relationship
     activities = relationship("Activity", back_populates="trip", cascade="all, delete")
+    
+    # New relationship for group chat
+    group_chat = relationship("GroupChat", back_populates="trip", uselist=False)

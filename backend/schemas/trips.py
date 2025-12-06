@@ -12,24 +12,24 @@ class TripBase(BaseModel):
     title: str
     location: str
     dates: str
-    imageurl: Optional[str]
-    participants: int
+    imageurl: Optional[str] = None
+    participants: int = 0
     maxparticipants: int
-    description: Optional[str]
-    budget: Optional[str]
-    duration: int
-    triptype: Optional[str]
-    participantlist: List[Participants]
+    description: Optional[str] = None
+    budget: Optional[str] = None
+    duration: Optional[int] = None
+    triptype: Optional[str] = None
+    participantlist: Optional[List[Participants]] = []
     activities: List[ActivityResponse] = []
 
 
 class TripCreate(TripBase):
-    activities: List[str]
+    activities: List[str] = []
 
 
 class TripResponse(TripBase):
     id: int
-    activities: List[ActivityResponse]
+    activities: List[ActivityResponse] = []
 
     class Config:
         from_attributes = True
