@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   ArrowLeft,
   Users,
@@ -9,6 +10,8 @@ import {
 } from "lucide-react-native";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { TouchableOpacity, Pressable, Text, View, ScrollView } from "react-native";
+import Toast from "react-native-toast-message";
+import api from "../api/api";
 
 interface Participant {
   id: string;
@@ -19,25 +22,52 @@ interface Participant {
 
 interface TripDetailsProps {
   trip: {
-    id: string;
+    id: string | number;
     title: string;
     location: string;
     dates: string;
     imageUrl: string;
     participants: number;
-    maxParticipants: number;
+    maxparticipants: number;
     description: string;
     budget: string;
     duration: string;
-    tripType: string;
+    triptype: string;
     participantsList: Participant[];
     activities: string[];
   };
   onBack: () => void;
-  onJoinChat: () => void;
+  onJoinChat: (chatId: number, tripTitle: string) => void;
 }
 
 export function TripDetails({ trip, onBack, onJoinChat }: TripDetailsProps) {
+  const [isJoiningChat, setIsJoiningChat] = useState(false);
+
+  const handleJoinChat = async () => {
+    setIsJoiningChat(true);
+    try {
+      const response = await api.post(`/trips/${trip.id}/join-chat`);
+      const { chat_id } = response.data;
+
+      Toast.show({
+        type: "success",
+        text1: "Successfully joined!",
+        text2: response.data.message,
+      });
+
+      onJoinChat(chat_id, trip.title);
+    } catch (error) {
+      console.error("Failed to join chat:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to join chat",
+        text2: error.response?.data?.detail || "Please try again",
+      });
+    } finally {
+      setIsJoiningChat(false);
+    }
+  };
+
   return (
     <View className="flex-1 bg-gray-50">
       <View className="relative h-72">
@@ -70,7 +100,7 @@ export function TripDetails({ trip, onBack, onJoinChat }: TripDetailsProps) {
               style={{ backgroundColor: "#8E486A" }}
             >
               <Text className="text-white text-xs font-semibold">
-                {trip.tripType}
+                {trip.triptype}
               </Text>
             </View>
           </View>
@@ -129,10 +159,10 @@ export function TripDetails({ trip, onBack, onJoinChat }: TripDetailsProps) {
           <View>
             <View className="flex-row items-center justify-between mb-3">
               <Text className="font-semibold">
-                Travelers ({trip.participants}/{trip.maxParticipants})
+                Travelers ({trip.participants}/{trip.maxparticipants})
               </Text>
               <Text className="text-sm text-gray-500">
-                {trip.maxParticipants - trip.participants} spots left
+                {trip.maxparticipants - trip.participants} spots left
               </Text>
             </View>
 
@@ -151,7 +181,7 @@ export function TripDetails({ trip, onBack, onJoinChat }: TripDetailsProps) {
                 </View>
               ))}
 
-              {Array.from({ length: trip.maxParticipants - trip.participants }).map(
+              {Array.from({ length: trip.maxparticipants - trip.participants }).map(
                 (_, index) => (
                   <View key={`empty-${index}`} className="flex-row items-center">
                     <View
@@ -170,15 +200,16 @@ export function TripDetails({ trip, onBack, onJoinChat }: TripDetailsProps) {
       {/* Bottom Join Button */}
       <View className="absolute bottom-0 left-0 right-0 p-5 bg-[#8E486A] border-t border-gray-200">
         <Pressable
-          onPress={onJoinChat}
+          onPress={handleJoinChat}
+          disabled={isJoiningChat}
           style={({ pressed }) => [
-            { opacity: pressed ? 0.7 : 1, backgroundColor: "#8E486A" },
+            { opacity: pressed || isJoiningChat ? 0.7 : 1, backgroundColor: "#8E486A" },
           ]}
           className="w-full h-14 rounded-xl flex-row items-center justify-center gap-2"
         >
           <MessageCircle size={20} color="#FFF" />
           <Text className="text-white text-base font-semibold">
-            Join Group Chat
+            {isJoiningChat ? "Joining..." : "Join Group Chat"}
           </Text>
         </Pressable>
       </View>
