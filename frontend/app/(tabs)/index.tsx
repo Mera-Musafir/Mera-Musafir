@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -11,11 +11,11 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Search, SlidersHorizontal, Plus } from "lucide-react-native";
 import Toast from "react-native-toast-message";
-
 import { TripCard } from "../../components/TripCard";
 import { TripDetails } from "../../components/TripDetails";
 import { CreateTrip } from "../../components/CreateTrip";
 import { GroupChat } from "../../components/GroupChat";
+import api from "../../api/api";
 
 // Mock data for trips (kept identical)
 const mockTrips = [
@@ -140,15 +140,14 @@ export default function App() {
   const [selectedTrip, setSelectedTrip] = useState<string | null>(null);
   const [showCreateTrip, setShowCreateTrip] = useState(false);
   const [showGroupChat, setShowGroupChat] = useState(false);
+  const [trips, setTrips] = useState(mockTrips);
+  const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
 
-  const handleJoinChat = () => {
+  const handleJoinChat = (chatId: number, tripTitle: string) => {
+    // Navigate to GroupChat with chat_id
     setShowGroupChat(true);
-    Toast.show({
-      type: "success",
-      text1: "Successfully joined the group chat!",
-      text2:
-        "You can now chat with other travelers and plan your trip together.",
-    });
+    // Pass chat details to GroupChat component
+    setSelectedChatId(chatId);
   };
 
   const handleCreateTrip = (tripData: any) => {
@@ -161,7 +160,39 @@ export default function App() {
     });
   };
 
-  const selectedTripData = mockTrips.find((trip) => trip.id === selectedTrip);
+  useEffect(() => {
+    const getTrips = async () => {
+      try {
+        const response = await api.get("/trips");
+        console.log("Fetched trips:", response.data);
+        const tripsWithDefaults = response.data.map((trip: any) => ({
+          ...trip,
+          participantsList: trip.participantlist || [],
+          activities: Array.isArray(trip.activities)
+            ? trip.activities.map((activity: any) => 
+                typeof activity === 'string' ? activity : activity.name
+              )
+            : [],
+        }));
+        setTrips(tripsWithDefaults);
+      } catch (error) {
+        console.log("Error fetching trips:", error);
+
+        if (error.response) {
+          console.log("Status:", error.response.status);
+          console.log("Data:", error.response.data);
+        } else if (error.request) {
+          console.log("Request sent but no response received");
+        } else {
+          console.log("Error setting up request:", error.message);
+        }
+      }
+    };
+
+    getTrips();
+  }, []);
+
+  const selectedTripData = trips.find((trip) => trip.id === selectedTrip);
 
   // Root-level Toast mounted below
   if (showCreateTrip) {
@@ -180,9 +211,13 @@ export default function App() {
     return (
       <SafeAreaView className="flex-1">
         <GroupChat
+          chatId={selectedChatId}
           tripId={selectedTripData.id}
           tripTitle={selectedTripData.title}
-          onBack={() => setShowGroupChat(false)}
+          onBack={() => {
+            setShowGroupChat(false);
+            setSelectedChatId(null);
+          }}
         />
         <Toast />
       </SafeAreaView>
@@ -210,11 +245,10 @@ export default function App() {
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="px-5 pt-12 pb-6 bg-[#8E486A]">
-
-          <Text className="text-white text-2xl mb-2">Discover Trips</Text>
-          <Text className="text-white/80">
-            Find your next adventure with like-minded travelers
-          </Text>
+        <Text className="text-white text-2xl mb-2">Discover Trips</Text>
+        <Text className="text-white/80">
+          Find your next adventure with like-minded travelers
+        </Text>
 
         {/* Search Bar */}
         <View className="mt-6 flex-row gap-3 items-center">
@@ -245,12 +279,12 @@ export default function App() {
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-lg font-semibold">Available Trips</Text>
           <Text className="text-sm text-gray-500">
-            {mockTrips.length} trips
+            {trips.length} trips
           </Text>
         </View>
 
         <View className="space-y-4">
-          {mockTrips.map((trip) => (
+          {trips.map((trip) => (
             <View key={trip.id}>
               <TripCard {...trip} onClick={() => setSelectedTrip(trip.id)} />
             </View>

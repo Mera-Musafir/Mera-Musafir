@@ -35,7 +35,14 @@ try:
     print("✅ Database connection successful.")
 except Exception as e:
     print("❌ Database connection failed:", e)
-    raise
+    print("⚠️  Falling back to SQLite for local development...")
+    # Fallback to SQLite
+    DATABASE_URL = "sqlite:///./app.db"
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"check_same_thread": False}
+    )
+    print("✅ Using SQLite database at", DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,

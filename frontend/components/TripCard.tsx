@@ -9,7 +9,7 @@ interface TripCardProps {
   dates: string;
   imageUrl: string;
   participants: number;
-  maxParticipants: number;
+  maxparticipants: number;
   onClick: () => void;
 }
 
@@ -19,7 +19,7 @@ export function TripCard({
   dates,
   imageUrl,
   participants,
-  maxParticipants,
+  maxparticipants,
   onClick,
 }: TripCardProps) {
   return (
@@ -36,7 +36,7 @@ export function TripCard({
         />
         <View className="absolute top-3 right-3 bg-white/90 px-3 py-1.5 rounded-full flex-row items-center gap-1.5">
           <Users size={16} color="#8E486A" />
-          <Text className="text-sm">{participants}/{maxParticipants}</Text>
+          <Text className="text-sm">{participants}/{maxparticipants}</Text>
         </View>
       </View>
 
