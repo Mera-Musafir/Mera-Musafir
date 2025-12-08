@@ -17,7 +17,6 @@ import { CreateTrip } from "../../components/CreateTrip";
 import { GroupChat } from "../../components/GroupChat";
 import api from "../../api/api";
 import ExploreScreen from "./explore";
-import { AppContext } from "../AppContext";
 
 // Mock data for trips (kept identical)
 const mockTrips = [];
