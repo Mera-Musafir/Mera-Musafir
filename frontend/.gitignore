@@ -44,3 +44,4 @@ app-example
 
 __pycache__/
 *.py[cod]
+.vercel

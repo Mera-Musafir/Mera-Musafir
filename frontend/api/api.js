@@ -3,11 +3,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 
 const getBackendURL = () => {
-  const backendURL = "backend-production-b554.up.railway.app";
-  // if (!backendURL) {
-  //   console.warn("No backend URL defined. Using localhost for development.");
-  //   return "http://127.0.0.1:8000";
-  // }
+  // Use expoConfig instead of manifest
+  const backendURL = Constants.expoConfig?.extra?.apiUrl;
+
+  if (!backendURL) {
+    console.warn("No backend URL defined. Using localhost for development.");
+    return "http://127.0.0.1:8000";
+  }
+
   console.log("Backend URL:", backendURL);
   return backendURL;
 };
@@ -19,9 +22,13 @@ const api = axios.create({
 
 // Add request interceptor
 api.interceptors.request.use(async (config) => {
-  const userId = await AsyncStorage.getItem("user_id");
-  if (userId) {
-    config.headers["X-User-Id"] = userId;
+  try {
+    const userId = await AsyncStorage.getItem("user_id");
+    if (userId) {
+      config.headers["X-User-Id"] = userId;
+    }
+  } catch (err) {
+    console.error("Error fetching user_id from AsyncStorage:", err);
   }
   return config;
 });
