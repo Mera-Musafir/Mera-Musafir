@@ -3,7 +3,6 @@ import { View, Text, Pressable, FlatList } from "react-native";
 import api from "../../api/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useContext } from "react";
-import { AuthContext } from "../AuthContext";
 
 export default function ExploreScreen({ onOpenChat, onLogout }) {
   const [chats, setChats] = useState([]);
@@ -17,7 +16,7 @@ export default function ExploreScreen({ onOpenChat, onLogout }) {
     }
   };
 
-  const { logout } = useContext(AuthContext);
+  
 
   useEffect(() => {
     fetchChats();
@@ -44,12 +43,7 @@ export default function ExploreScreen({ onOpenChat, onLogout }) {
       />
 
       {/* Logout button */}
-      <Pressable
-        onPress={logout}
-        className="absolute bottom-6 left-4 right-4 py-4 rounded-xl bg-[#8E486A] items-center"
-      >
-        <Text className="text-white text-base font-semibold">Logout</Text>
-      </Pressable>
+      
     </View>
   );
 }
