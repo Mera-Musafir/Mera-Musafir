@@ -14,3 +14,4 @@ class User(Base):
     # Relationships
     chat_memberships = relationship("GroupChatMember", back_populates="user")
     messages = relationship("ChatMessage", back_populates="sender")
+    itinerary_items = relationship("ItineraryItem", back_populates="creator")
