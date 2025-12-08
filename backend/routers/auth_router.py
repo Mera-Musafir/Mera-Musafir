@@ -4,9 +4,10 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from schemas.users import UserCreate, UserLogin, UserResponse
-from crud.users_crud import get_user_by_email, create_user, authenticate_user
+from crud.users_crud import get_user_by_email, create_user, authenticate_user, log_event
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -22,6 +23,10 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
         )
 
     user = create_user(db, user_data)
+
+    # Log analytics event
+    log_event(db, user_id=user.id, event_type="signup")
+
     return user
 
 
@@ -38,5 +43,8 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
+
+    # Log analytics event
+    log_event(db, user_id=user.id, event_type="login")
 
     return user

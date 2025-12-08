@@ -13,7 +13,8 @@ from crud.chat_crud import (
     get_group_chat_with_members,
     get_chat_messages,
     create_chat_message,
-    is_user_in_chat
+    is_user_in_chat,
+    get_all_chats_for_user
 )
 from crud.itinerary_crud import (
     get_itinerary_for_trip,
@@ -93,6 +94,16 @@ def get_chat_details(
         )
     
     return chat
+
+@router.get("/chats", response_model=List[GroupChatResponse])
+def get_user_chats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get all group chats that the user has joined"""
+    chats = get_all_chats_for_user(db, current_user.id)
+    return chats
+
 
 @router.get("/chats/{chat_id}/messages", response_model=List[ChatMessageResponse])
 def get_chat_messages_endpoint(
