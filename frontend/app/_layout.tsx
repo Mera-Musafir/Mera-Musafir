@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import { LoginScreen } from "@/components/LoginScreen";
 import { SignupScreen } from "@/components/SignupScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AuthContext } from "./AuthContext";
+
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -49,15 +49,6 @@ export default function RootLayout() {
     setAuthScreen(null);
   };
 
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("user");
-      await AsyncStorage.removeItem("user_id");
-      setAuthScreen("login"); // show login screen
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
 
   const handleSignupSuccess = async () => {
     setAuthScreen("login"); 
