@@ -24,3 +24,9 @@ class Trip(Base):
     
     # New relationship for group chat
     group_chat = relationship("GroupChat", back_populates="trip", uselist=False)
+    
+    itinerary_items = relationship(
+        "ItineraryItem",          # model name as string
+        back_populates="trip",    # must match ItineraryItem.trip relationship name
+        cascade="all, delete"     # delete items if trip is deleted
+    )
