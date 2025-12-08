@@ -10,7 +10,7 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    
+    password_hash = Column(String, nullable=False)
     # Relationships
     chat_memberships = relationship("GroupChatMember", back_populates="user")
     messages = relationship("ChatMessage", back_populates="sender")

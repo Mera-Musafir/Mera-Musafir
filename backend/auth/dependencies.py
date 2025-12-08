@@ -1,31 +1,43 @@
-from fastapi import Depends, HTTPException, status
+# auth/dependencies.py
+from fastapi import Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
-from database import get_db
-from models.users import User
+from typing import Optional
 import uuid
 
-async def get_current_user(db: Session = Depends(get_db)) -> User:
+from database import get_db
+from models.users import User
+from crud.users_crud import get_user_by_id
+
+def get_current_user(
+    db: Session = Depends(get_db),
+    x_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+) -> User:
     """
-    Placeholder for user authentication.
-    In production, this would validate JWT tokens, API keys, etc.
-    For MVP, we'll return a mock user.
+    Lightweight 'current user' resolver.
+
+    - Requires X-User-Id header (UUID as string).
+    - Loads the corresponding user from DB.
+    - No real token/session yet; the client is responsible for storing the user id after login.
     """
-    
-    # TODO: Replace with actual authentication logic
-    # This is a placeholder that returns a mock user for testing
-    
-    mock_user_id = uuid.uuid4()
-    
-    # Check if mock user exists, create if not
-    user = db.query(User).filter(User.email == "test@example.com").first()
-    if not user:
-        user = User(
-            id=mock_user_id,
-            name="Test User",
-            email="test@example.com"
+    if not x_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="X-User-Id header missing",
         )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-    
+
+    try:
+        user_uuid = uuid.UUID(x_user_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid X-User-Id header; must be a UUID string",
+        )
+
+    user = get_user_by_id(db, user_uuid)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found for given X-User-Id",
+        )
+
     return user
