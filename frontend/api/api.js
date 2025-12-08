@@ -12,10 +12,6 @@ const getBackendURL = () => {
     return "http://127.0.0.1:8000";
   }
 
-  if (typeof window !== "undefined" && window.location.protocol === "https:") {
-    return backendURL.replace(/^http:/, "https:");
-  }
-
   return backendURL;
 };
 
