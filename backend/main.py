@@ -6,6 +6,7 @@ from routers.trips_router import router as trips_router
 from routers.chat_router import router as chat_router
 from routers.auth_router import router as auth_router
 
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()

@@ -3,11 +3,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 
 const getBackendURL = () => {
-  const backendURL = Constants.manifest?.extra?.apiUrl;
-  if (!backendURL) {
-    console.warn("No backend URL defined. Using localhost for development.");
-    return "http://127.0.0.1:8000";
-  }
+  const backendURL = "backend-production-b554.up.railway.app";
+  // if (!backendURL) {
+  //   console.warn("No backend URL defined. Using localhost for development.");
+  //   return "http://127.0.0.1:8000";
+  // }
   console.log("Backend URL:", backendURL);
   return backendURL;
 };
