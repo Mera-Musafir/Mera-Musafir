@@ -1,43 +1,42 @@
 # auth/dependencies.py
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
+from database import get_db
+from models.users import User
 from typing import Optional
 import uuid
 
-from database import get_db
-from models.users import User
-from crud.users_crud import get_user_by_id
-
-def get_current_user(
+async def get_current_user(
     db: Session = Depends(get_db),
-    x_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+    x_user_id: Optional[str] = Header(None)
 ) -> User:
     """
-    Lightweight 'current user' resolver.
-
-    - Requires X-User-Id header (UUID as string).
-    - Loads the corresponding user from DB.
-    - No real token/session yet; the client is responsible for storing the user id after login.
+    Get current user from X-User-Id header.
+    Frontend should send user ID received from login endpoint.
     """
+    
     if not x_user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="X-User-Id header missing",
+            detail="User ID not provided. Please login first.",
         )
-
+    
     try:
-        user_uuid = uuid.UUID(x_user_id)
-    except ValueError:
+        # Convert string UUID to UUID object
+        user_id = uuid.UUID(x_user_id)
+    except (ValueError, AttributeError):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid X-User-Id header; must be a UUID string",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user ID format",
         )
-
-    user = get_user_by_id(db, user_uuid)
+    
+    # Get user from database
+    user = db.query(User).filter(User.id == user_id).first()
+    
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found for given X-User-Id",
+            detail="User not found. Please login again.",
         )
-
+    
     return user

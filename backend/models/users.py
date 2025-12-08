@@ -15,3 +15,4 @@ class User(Base):
     chat_memberships = relationship("GroupChatMember", back_populates="user")
     messages = relationship("ChatMessage", back_populates="sender")
     itinerary_items = relationship("ItineraryItem", back_populates="creator")
+    analytics_events = relationship("AnalyticsEvent", back_populates="user")

@@ -8,6 +8,9 @@
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "apiUrl": "https://backend-production-b554.up.railway.app"
+    },
     "ios": {
       "supportsTablet": true
     },

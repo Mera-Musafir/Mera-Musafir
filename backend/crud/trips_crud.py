@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from models.trips import Trip
 from models.activities import Activity
 from schemas.trips import TripCreate
+from crud.analytics_crud import log_event
 
 def get_all_trips(db: Session):
     return db.query(Trip).options(joinedload(Trip.activities)).all()

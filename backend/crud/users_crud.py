@@ -1,5 +1,6 @@
 # crud/users_crud.py
 from sqlalchemy.orm import Session
+from models.analytics import AnalyticsEvent
 from typing import Optional
 import uuid
 
@@ -31,3 +32,14 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     if not verify_password(password, user.password_hash):
         return None
     return user
+
+def log_event(db: Session, user_id: uuid.UUID | None, event_type: str, metadata: dict | None = None):
+    event = AnalyticsEvent(
+        user_id=user_id,
+        event_type=event_type,
+        event_metadata=metadata  # use the new column name
+    )
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    return event

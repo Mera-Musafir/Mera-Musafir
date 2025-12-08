@@ -26,6 +26,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import Toast from "react-native-toast-message";
+import api from '../api/api'
 
 interface CreateTripProps {
   onBack: () => void;
@@ -141,29 +142,59 @@ export function CreateTrip({ onBack, onCreateTrip }: CreateTripProps) {
     setStep((prev) => prev + 1);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.imageUrl) {
       Toast.show({
         type: "error",
         text1: "Please select an image",
       });
-
       return;
     }
 
-    onCreateTrip(formData);
-    Toast.show({
-      type: "success",
-      text1: "Trip created successfully!",
-      text2: "Your trip is now available for travelers to join.",
-    });
+    // --- Format backend fields correctly ---
+    const payload = {
+      title: formData.title,
+      location: formData.location,
+      dates: `${formData.startDate} to ${formData.endDate}`,
+      imageurl: formData.imageUrl,
+      maxparticipants: Number(formData.maxParticipants),
+      description: formData.description,
+      budget: formData.budget,
+      triptype: formData.tripType,
+      activities: formData.activities,
+
+      // Calculate duration in days
+      duration:
+        Math.ceil(
+          (new Date(formData.endDate).getTime() -
+            new Date(formData.startDate).getTime()) /
+            (1000 * 60 * 60 * 24)
+        ) || 1,
+    };
+
+    try {
+      const res = await api.post("/trips/", payload);
+
+      Toast.show({
+        type: "success",
+        text1: "Trip created!",
+      });
+
+      onCreateTrip(res.data);
+    } catch (error) {
+      console.log("Error creating trip:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to create trip",
+        text2: error.response?.data?.detail || "Unknown error",
+      });
+    }
   };
 
   return (
     <View className="min-h-screen  bg-gray-50">
       {/* Header */}
       <View className="px-5 pt-12 pb-6 bg-[#763E59]">
-        
         <View className="flex-row items-center gap-4 mb-4">
           <Pressable
             onPress={onBack}
@@ -478,47 +509,46 @@ export function CreateTrip({ onBack, onCreateTrip }: CreateTripProps) {
           </View>
         )}
         <View className="absolute bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-200">
-        <View className="flex-row gap-3">
-          {step > 1 && (
-            <Pressable
-              onPress={() => setStep((prev) => prev - 1)}
-              className="flex-1 h-14 rounded-xl items-center justify-center"
-              style={({ pressed }) => [
-                {
-                  borderWidth: 1,
-                  borderColor: "#E5E7EB",
-                  backgroundColor: "transparent",
-                  opacity: pressed ? 0.7 : 1,
-                },
-              ]}
-            >
-              <Text className="text-black">Back</Text>
-            </Pressable>
-          )}
+          <View className="flex-row gap-3">
+            {step > 1 && (
+              <Pressable
+                onPress={() => setStep((prev) => prev - 1)}
+                className="flex-1 h-14 rounded-xl items-center justify-center"
+                style={({ pressed }) => [
+                  {
+                    borderWidth: 1,
+                    borderColor: "#E5E7EB",
+                    backgroundColor: "transparent",
+                    opacity: pressed ? 0.7 : 1,
+                  },
+                ]}
+              >
+                <Text className="text-black">Back</Text>
+              </Pressable>
+            )}
 
-          {step < 4 ? (
-            <Pressable
-              onPress={handleNext}
-              className="flex-1 h-14 rounded-xl items-center justify-center"
-              style={{ backgroundColor: "#8E486A" }}
-            >
-              <Text className="text-white font-semibold">Next</Text>
-            </Pressable>
-          ) : (
-            <Pressable
-              onPress={handleSubmit}
-              className="flex-1 h-14 rounded-xl items-center justify-center"
-              style={{ backgroundColor: "#8E486A" }}
-            >
-              <Text className="text-white font-semibold">Create Trip</Text>
-            </Pressable>
-          )}
+            {step < 4 ? (
+              <Pressable
+                onPress={handleNext}
+                className="flex-1 h-14 rounded-xl items-center justify-center"
+                style={{ backgroundColor: "#8E486A" }}
+              >
+                <Text className="text-white font-semibold">Next</Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={handleSubmit}
+                className="flex-1 h-14 rounded-xl items-center justify-center"
+                style={{ backgroundColor: "#8E486A" }}
+              >
+                <Text className="text-white font-semibold">Create Trip</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
-      </View>
       </ScrollView>
 
       {/* Fixed Bottom Buttons */}
-      
     </View>
   );
 }
