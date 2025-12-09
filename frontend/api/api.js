@@ -1,26 +1,20 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Constants from "expo-constants";
 
-const getBackendURL = () => {
-  const backendURL =
-    Constants.expoConfig?.extra?.apiUrl ||
-    (Constants.manifest && Constants.manifest.extra?.apiUrl);
+// Use the backend URL directly
+const BACKEND_URL = "https://backend-production-b554.up.railway.app";
 
-  if (!backendURL) {
-    console.warn("No backend URL defined. Using localhost for development.");
-    return "http://127.0.0.1:8000";
-  }
-
-  if (typeof window !== "undefined" && window.location.protocol === "https:") {
-    return backendURL.replace(/^http:/, "https:");
-  }
-
-  return backendURL;
-};
+// const getBackendURL = () => {
+//   // Use localhost in development
+//   if (typeof window !== "undefined" && window.location.hostname === "localhost") {
+//     return "http://127.0.0.1:8000";
+//   }
+//   // Production always uses HTTPS backend
+//   return BACKEND_URL;
+// };
 
 const api = axios.create({
-  baseURL: getBackendURL(),
+  baseURL: BACKEND_URL,
   timeout: 100000,
 });
 
