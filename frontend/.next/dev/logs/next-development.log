@@ -1,0 +1,5 @@
+[00:00:00.771] Server  LOG      ✓ Ready in 587ms
+[00:00:06.614] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:24.294] Browser LOG     Login success: {"email":"hamza@example.com","id":"4fdfa57b-1859-427f-bd08-5c99274871ed","name":"Hamza"}
+[00:00:24.294] Browser LOG     User ID stored: 4fdfa57b-1859-427f-bd08-5c99274871ed
+[00:00:25.905] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
