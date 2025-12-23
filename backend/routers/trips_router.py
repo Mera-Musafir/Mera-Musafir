@@ -42,13 +42,17 @@ async def _upload_trip_image(image: UploadFile, trip_id: int) -> str:
                 "upsert": True,
             },
         )
+        print(f"Supabase response: {response}")
     except Exception as exc:
-        raise HTTPException(status_code=502, detail="Unable to upload image.") from exc
+        error_msg = str(exc)
+        print(f"Supabase upload error: {error_msg}")
+        raise HTTPException(status_code=502, detail=f"Unable to upload image: {error_msg}") from exc
     error = getattr(response, "error", None)
     if isinstance(response, dict):
         error = response.get("error")
     if error:
-        raise HTTPException(status_code=502, detail="Unable to upload image.")
+        print(f"Supabase error in response: {error}")
+        raise HTTPException(status_code=502, detail=f"Unable to upload image: {error}")
     return f"{TRIP_IMAGES_PUBLIC_BASE_URL}{storage_path}"
 
 
