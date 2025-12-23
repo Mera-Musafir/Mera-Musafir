@@ -22,10 +22,10 @@ supabase_client: Optional[Client] = (
     create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 )
 
-def _upload_trip_image(image: UploadFile, trip_id: int) -> str:
+async def _upload_trip_image(image: UploadFile, trip_id: int) -> str:
     if not supabase_client:
         raise HTTPException(status_code=500, detail="Image storage is not configured.")
-    file_bytes = image.file.read()
+    file_bytes = await image.read()
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Uploaded image is empty.")
     extension = mimetypes.guess_extension(image.content_type or "") or ".bin"
@@ -82,4 +82,3 @@ async def create_new_trip(
     )
 
     return new_trip
-
