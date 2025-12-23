@@ -64,16 +64,22 @@ async def create_new_trip(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    # Create trip (CRUD function unaware of user)
+    # Create trip without imageurl first
     new_trip = create_trip(db, trip)
+    
+    # Upload image and update imageurl if provided
     if image:
-        image_url = await _upload_trip_image(image, new_trip.id)
-        new_trip.imageurl = image_url
-        db.add(new_trip)
-        db.commit()
-        db.refresh(new_trip)
+        try:
+            image_url = await _upload_trip_image(image, new_trip.id)
+            new_trip.imageurl = image_url
+            db.add(new_trip)
+            db.commit()
+            db.refresh(new_trip)
+        except Exception as exc:
+            print(f"Image upload failed: {str(exc)}")
+            raise
 
-    # Log analytics event here
+    # Log analytics event
     log_event(
         db,
         user_id=current_user.id,
