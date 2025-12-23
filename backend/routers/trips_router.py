@@ -36,7 +36,7 @@ async def _upload_trip_image(image: UploadFile, trip_id: int) -> str:
             file_bytes,
             {
                 "contentType": image.content_type or "application/octet-stream",
-                "upsert": True,
+                "upsert": "true",
             },
         )
         print(f"Supabase response: {response}")
