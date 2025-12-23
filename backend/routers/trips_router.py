@@ -7,7 +7,6 @@ from crud.trips_crud import get_all_trips, create_trip
 from schemas.trips import TripCreate, TripResponse
 from auth.dependencies import get_current_user
 from supabase import create_client, Client
-from io import BytesIO
 import mimetypes
 import os
 from uuid import uuid4
@@ -31,12 +30,10 @@ async def _upload_trip_image(image: UploadFile, trip_id: int) -> str:
     extension = mimetypes.guess_extension(image.content_type or "") or ".bin"
     filename = f"{uuid4()}{extension}"
     storage_path = f"trips/{trip_id}/{filename}"
-    buffer = BytesIO(file_bytes)
-    buffer.seek(0)
     try:
         response = supabase_client.storage.from_(TRIP_IMAGES_BUCKET).upload(
             storage_path,
-            buffer,
+            file_bytes,
             {
                 "contentType": image.content_type or "application/octet-stream",
                 "upsert": True,
